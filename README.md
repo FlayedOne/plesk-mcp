@@ -1,6 +1,6 @@
 # Plesk MCP Server
 
-This [MCP server](https://modelcontextprotocol.io) for [Plesk](https://www.plesk.com) allows administrators to manage their Plesk servers using various AI agents and apps. It builds on top of [Plesk REST API](https://docs.plesk.com/en-US/obsidian/api-rpc/about-rest-api.79359/) and provides core administration capabilities, as well as ability to manage the server through shell commands and upload files to the server.
+This [MCP server](https://modelcontextprotocol.io) for [Plesk](https://www.plesk.com) allows administrators to manage their Plesk servers using various AI agents and apps. It builds on top of [Plesk REST API](https://docs.plesk.com/en-US/obsidian/api-rpc/about-rest-api.79359/) and WP Toolkit REST API, and provides core administration capabilities, as well as ability to manage the server through shell commands and upload files to the server.
 
 The MCP server runs locally on your machine, so important information doesn't leave your environment.
 
@@ -16,16 +16,15 @@ You will need `uv` Python package manager to run the server. Refer to the [offic
 
 ## Usage
 
-Configure the server in your `mcp.json` or equivalent using a configuration like:
+Configure the server in your VS Code `mcp.json` or equivalent (in other agents or apps) using a configuration like:
 
 ```json
 {
     "servers": {
         "plesk": {
-            "command": "uv",
+            "command": "uvx",
             "args": [
-                "run",
-                "pleskmcp.py"
+                "plesk-mcp@latest"
             ],
             "env": {
                 // Base URL of your Plesk server. May include port.
@@ -45,12 +44,16 @@ Configure the server in your `mcp.json` or equivalent using a configuration like
 }
 ```
 
+You may want to use env file (e.g. via `"envFile"` parameter) if your agent or app supports it. This will avoid putting credentials directly in the config file.
+
+See `uvx plesk-mcp@latest --help` for details on available options and environment variables.
+
 ## Development
 
 MCP server run command:
 
 ```bash
-uv run pleskmcp.py --log-level debug --insecure
+uv run plesk-mcp --log-level debug --insecure
 ```
 
 Before commit:
@@ -59,4 +62,11 @@ Before commit:
 uv run ruff format
 uv run ruff check --fix
 uv run mypy .
+```
+
+Publish:
+
+```bash
+uv build --clear
+uv publish
 ```

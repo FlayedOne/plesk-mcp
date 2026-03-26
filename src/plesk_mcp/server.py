@@ -21,7 +21,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.server.dependencies import get_server
 from fastmcp.utilities.logging import get_logger
 
-from transforms import ApiListTransform
+from plesk_mcp.transforms import ApiListTransform
 
 logger = get_logger(__name__)
 xml_rpc_client: ContextVar[httpx.AsyncClient] = ContextVar("xml_rpc_client")
@@ -409,12 +409,17 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-async def main() -> None:
+async def amain() -> None:
     """Main entry point."""
     args = parse_args()
     mcp = await create_mcp_server(args)
     await mcp.run_async(show_banner=False, log_level=args.log_level)
 
 
+def main() -> None:
+    """Main tool entry point."""
+    asyncio.run(amain())
+
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
