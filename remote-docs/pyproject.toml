@@ -1,0 +1,45 @@
+[project]
+name = "plesk-remote-docs-mcp"
+version = "0.1.0"
+description = "MCP server providing access to the Plesk knowledge base using a remote service"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Flayed One" }
+]
+keywords = ["plesk", "docs", "documentation", "mcp", "model-context-protocol", "llm", "automation", "hosting", "wp-toolkit", "knowledge-base"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Customer Service",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Documentation",
+    "Topic :: System :: Systems Administration",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=3",
+    "httpx",
+]
+
+[build-system]
+requires = ["uv_build>=0.10,<0.12"]
+build-backend = "uv_build"
+
+[project.scripts]
+plesk-remote-docs-mcp = "plesk_remote_docs_mcp.server:main"
+
+[tool.uv]
+exclude-newer = "7 days"
+constraint-dependencies = [
+    # requests 2.32 compatibility
+    "chardet<6",
+]

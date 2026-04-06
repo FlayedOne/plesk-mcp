@@ -101,6 +101,11 @@ ignore = [
     "S101",  # allow asserts
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "D104",  # allow missing docstrings
+]
+
 [tool.ruff.lint.isort]
 default-section = "first-party"
 force-to-top = ["pytest"]
