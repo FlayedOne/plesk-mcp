@@ -111,9 +111,11 @@ default-section = "first-party"
 force-to-top = ["pytest"]
 known-third-party = [
     "async_lru",
+    "chromadb",
     "fastmcp",
     "httpx",
     "mcp",
+    "platformdirs",
 ]
 
 [tool.ruff.lint.pycodestyle]

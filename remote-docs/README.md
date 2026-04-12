@@ -15,7 +15,7 @@ Configure the server in your VS Code `mcp.json` or equivalent (in other agents o
 ```json
 {
     "servers": {
-        "plesk": {
+        "plesk-docs": {
             "command": "uvx",
             "args": [
                 "plesk-remote-docs-mcp@latest"

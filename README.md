@@ -48,6 +48,51 @@ You may want to use env file (e.g. via `"envFile"` parameter) if your agent or a
 
 See `uvx plesk-mcp@latest --help` for details on available options and environment variables.
 
+## Recommended Usage
+
+For better behavior, it's recommended to use this MCP server in combination with a documentation MCP server. Select either [plesk-local-docs-mcp](local-docs/README.md) or [plesk-remote-docs-mcp](remote-docs/README.md). This will allow the agent to get more accurate information about Plesk usage when needed.
+
+You may also attach several Plesk servers at once if needed (e.g. for managing multiple servers).
+
+Here's an example configuration:
+
+```json
+{
+    "servers": {
+        "plesk-docs": {
+            "command": "uvx",
+            "args": [
+                "plesk-local-docs-mcp@latest"
+            ],
+            "env": {
+                "OPENAI_API_KEY": "sk-..."
+            }
+        },
+        "plesk1": {
+            "command": "uvx",
+            "args": [
+                "plesk-mcp@latest"
+            ],
+            "env": {
+                "PLESK_HOST": "https://plesk1.example.net:8443",
+                "PLESK_API_KEY": "00000000-0000-0000-0000-000000000000"
+            }
+        },
+        "plesk2": {
+            "command": "uvx",
+            "args": [
+                "plesk-mcp@latest"
+            ],
+            "env": {
+                "PLESK_HOST": "https://plesk2.example.net",
+                "PLESK_USERNAME": "admin",
+                "PLESK_PASSWORD": "passwd"
+            }
+        }
+    }
+}
+```
+
 ## Development
 
 MCP server run command:
