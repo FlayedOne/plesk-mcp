@@ -37,6 +37,12 @@ build-backend = "uv_build"
 [project.scripts]
 plesk-remote-docs-mcp = "plesk_remote_docs_mcp.server:main"
 
+[project.urls]
+Homepage = "https://github.com/FlayedOne/plesk-mcp/tree/master/remote-docs"
+Repository = "https://github.com/FlayedOne/plesk-mcp"
+Issues = "https://github.com/FlayedOne/plesk-mcp/issues"
+Changelog = "https://github.com/FlayedOne/plesk-mcp/blob/master/remote-docs/CHANGELOG.md"
+
 [tool.uv]
 exclude-newer = "7 days"
 constraint-dependencies = [

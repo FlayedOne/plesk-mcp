@@ -40,6 +40,12 @@ build-backend = "uv_build"
 [project.scripts]
 plesk-local-docs-mcp = "plesk_local_docs_mcp.server:main"
 
+[project.urls]
+Homepage = "https://github.com/FlayedOne/plesk-mcp/tree/master/local-docs"
+Repository = "https://github.com/FlayedOne/plesk-mcp"
+Issues = "https://github.com/FlayedOne/plesk-mcp/issues"
+Changelog = "https://github.com/FlayedOne/plesk-mcp/blob/master/local-docs/CHANGELOG.md"
+
 [tool.uv]
 exclude-newer = "7 days"
 constraint-dependencies = [
