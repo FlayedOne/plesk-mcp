@@ -115,3 +115,33 @@ Publish:
 uv build --clear
 uv publish
 ```
+
+## Testing
+
+If you don't have a Plesk instance but want to test this MCP server, you may use [Plesk Docker image](https://github.com/plesk/docker) instead:
+
+```bash
+docker run -d --rm --tmpfs /tmp --tmpfs /run --tmpfs /run/lock -v /sys/fs/cgroup:/sys/fs/cgroup --cgroupns host -p 80:80 -p 443:443 -p 8880:8880 -p 8443:8443 --name plesk plesk/plesk
+```
+
+The Docker image startup is not instant, so give it a minute or so before trying to connect.
+
+And then configure the MCP server as:
+```json
+{
+    "servers": {
+        "plesk": {
+            "command": "uvx",
+            "args": [
+                "plesk-mcp@latest",
+                "--insecure"
+            ],
+            "env": {
+                "PLESK_HOST": "https://localhost:8443",
+                "PLESK_PASSWORD": "changeme1Q**"
+            }
+        }
+    }
+}
+```
+
