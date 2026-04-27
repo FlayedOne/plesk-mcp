@@ -14,6 +14,7 @@ from collections.abc import Callable, Iterable
 from contextvars import ContextVar
 from functools import lru_cache
 from typing import Annotated, Any, Literal, cast
+from urllib.parse import urljoin
 
 import httpx
 from async_lru import alru_cache
@@ -243,7 +244,7 @@ def create_rest_api_client(opts: argparse.Namespace, base_url: str) -> httpx.Asy
         raise ValueError("Either API key or username and password must be provided")
 
     return httpx.AsyncClient(
-        base_url=opts.host + base_url,
+        base_url=urljoin(opts.host, base_url),
         verify=not opts.insecure,
         auth=auth,
         headers={
@@ -268,7 +269,7 @@ def create_xml_rpc_client(opts: argparse.Namespace) -> httpx.AsyncClient:
         raise ValueError("Either API key or username and password must be provided")
 
     return httpx.AsyncClient(
-        base_url=opts.host + "/enterprise/control/agent.php",
+        base_url=urljoin(opts.host, "/enterprise/control/agent.php"),
         verify=not opts.insecure,
         headers=headers,
         timeout=float(opts.timeout),
@@ -280,7 +281,8 @@ async def create_mcp_server_from_rest_api(opts: argparse.Namespace, base_url: st
     client = create_rest_api_client(opts, base_url)
     openapi_spec = (await client.get(openapi_spec_url)).json()
     if "openapi" not in openapi_spec:
-        raise ValueError(f"Invalid OpenAPI spec from {opts.host + base_url + openapi_spec_url}: missing 'openapi' field")
+        url = urljoin(opts.host, os.path.join(base_url, openapi_spec_url))
+        raise ValueError(f"Invalid OpenAPI spec from {url}: missing 'openapi' field")
 
     return FastMCP.from_openapi(
         openapi_spec=openapi_spec,
@@ -293,7 +295,7 @@ async def create_mcp_server(opts: argparse.Namespace) -> FastMCP:
     """Creates the main Plesk MCP server."""
     mcp = FastMCP(
         name="Plesk MCP",
-        version="0.1.0",
+        version="0.1.1",
         transforms=[
             ApiListTransform(name="Plesk", always_visible=['exec', 'upload']),
         ],

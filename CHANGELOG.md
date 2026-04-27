@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 (Unreleased)
+
+### Bug Fixes
+
+- Fixed incorrect URL construction in API client configuration when `PLESK_HOST` ends with a trailing slash.
+
 ## 0.1.0 (2026-03-26)
 
 ### Features
