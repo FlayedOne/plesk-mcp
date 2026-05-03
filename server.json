@@ -1,5 +1,5 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.FlayedOne/plesk-mcp",
   "description": "Manage your Plesk hosting server using AI assistants.",
   "status": "active",
@@ -10,14 +10,13 @@
   "version": "0.1.1",
   "packages": [
     {
-      "registry_type": "pypi",
-      "registry_base_url": "https://pypi.org",
+      "registryType": "pypi",
       "identifier": "plesk-mcp",
       "version": "0.1.1",
       "transport": {
         "type": "stdio"
       },
-      "environment_variables": [
+      "environmentVariables": [
         {
           "description": "Base URL of your Plesk server. May include port. Example: https://plesk.example.com:8443",
           "is_required": true,

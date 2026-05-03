@@ -116,6 +116,7 @@ Publish:
 ```bash
 uv build --clear
 uv publish
+mcp-publisher login github
 mcp-publisher publish
 ```
 
