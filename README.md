@@ -1,5 +1,7 @@
 # Plesk MCP Server
 
+<!-- mcp-name: io.github.FlayedOne/plesk-mcp -->
+
 This [MCP server](https://modelcontextprotocol.io) for [Plesk](https://www.plesk.com) allows administrators to manage their Plesk servers using various AI agents and apps. It builds on top of [Plesk REST API](https://docs.plesk.com/en-US/obsidian/api-rpc/about-rest-api.79359/) and WP Toolkit REST API, and provides core administration capabilities, as well as ability to manage the server through shell commands and upload files to the server.
 
 The MCP server runs locally on your machine, so important information doesn't leave your environment.
@@ -114,6 +116,7 @@ Publish:
 ```bash
 uv build --clear
 uv publish
+mcp-publisher publish
 ```
 
 ## Testing
