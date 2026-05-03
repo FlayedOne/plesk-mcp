@@ -6,6 +6,10 @@
 
 - Fixed incorrect URL construction in API client configuration when `PLESK_HOST` ends with a trailing slash.
 
+### Internal Changes
+
+- Added demo mode, which doesn't require a Plesk instance. Activated by setting `PLESK_HOST` to a URL like `https://demo.example.net` or `https://windows.demo.example.net:8443`.
+
 ## 0.1.0 (2026-03-26)
 
 ### Features

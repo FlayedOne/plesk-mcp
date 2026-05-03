@@ -13,8 +13,9 @@ import xml.etree.ElementTree as ET
 from collections.abc import Callable, Iterable
 from contextvars import ContextVar
 from functools import lru_cache
+from importlib.resources import files
 from typing import Annotated, Any, Literal, cast
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import httpx
 from async_lru import alru_cache
@@ -408,12 +409,53 @@ def parse_args() -> argparse.Namespace:
     if args.timeout <= 0:
         parser.error("Timeout must be a positive integer")
 
+    args.demo = False
+    if hostname := urlparse(args.host).hostname:
+        args.demo = hostname.endswith("demo.example.net")
+
     return args
+
+
+async def run_demo(args: argparse.Namespace) -> None:
+    """Runs the MCP server in demo mode with mocked API responses. Used for automated MCP server validators."""
+    logger.warning("Running in demo mode (requires dev dependencies)")
+
+    from unittest.mock import ANY  # noqa: PLC0415
+
+    import respx  # noqa: PLC0415
+
+    with respx.mock(base_url=args.host, assert_all_mocked=False, assert_all_called=False) as mock:
+        plesk_spec = files("plesk_mcp") / "data" / "openapi.json"
+        wp_toolkit_spec = files("plesk_mcp") / "data" / "public"
+        mock.get("/api/v2/openapi.json").respond(text=plesk_spec.read_text())
+        mock.get("/api/modules/wp-toolkit/v1/specification/public").respond(text=wp_toolkit_spec.read_text())
+
+        mock.get("/api/v2/server").respond(
+            json={
+                "platform": "Windows" if "windows" in args.host.lower() else "Unix",
+                "panel_version": "18.0.77",
+            },
+        )
+        mock.post("/api/v2/cli/scheduler/call", json__params__0="--run").respond(
+            json={"code": 0, "stdout": '\n{"code": 0, "stdout": "", "stderr": ""}', "stderr": ""},
+        )
+        mock.post("/api/v2/cli/scheduler/call").respond(
+            json={"code": 0, "stdout": '{"id": 123}', "stderr": ""},
+        )
+        mock.post("/enterprise/control/agent.php/", files={"file": ANY}).respond(
+            content="<packet><upload><result><status>ok</status><file>/usr/local/psa/tmp/file</file></result></upload></packet>",
+        )
+
+        mcp = await create_mcp_server(args)
+        await mcp.run_async(show_banner=False, log_level=args.log_level)
 
 
 async def amain() -> None:
     """Main entry point."""
     args = parse_args()
+    if args.demo:
+        return await run_demo(args)
+
     mcp = await create_mcp_server(args)
     await mcp.run_async(show_banner=False, log_level=args.log_level)
 

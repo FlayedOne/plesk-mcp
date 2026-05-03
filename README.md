@@ -118,6 +118,8 @@ uv publish
 
 ## Testing
 
+### Using Plesk Docker Image
+
 If you don't have a Plesk instance but want to test this MCP server, you may use [Plesk Docker image](https://github.com/plesk/docker) instead:
 
 ```bash
@@ -145,3 +147,24 @@ And then configure the MCP server as:
 }
 ```
 
+### Without Plesk Server (Demo Mode)
+
+Alternatively, run in demo mode from sources (with mocked responses):
+
+```json
+{
+    "servers": {
+        "plesk": {
+            "command": "uv",
+            "args": [
+                "run",
+                "plesk-mcp"
+            ],
+            "env": {
+                "PLESK_HOST": "https://linux.demo.example.net",
+                "PLESK_API_KEY": "-"
+            }
+        }
+    }
+}
+```

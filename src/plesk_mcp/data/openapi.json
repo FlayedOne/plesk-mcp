@@ -1,0 +1,3823 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "version": "v2",
+    "title": "Plesk RESTful API",
+    "description": "New remote API for Plesk is based on REST concepts and provides the output in JSON format."
+  },
+  "servers": [
+    {
+      "url": "/api/v2",
+      "description": "Plesk Server REST API"
+    }
+  ],
+  "security": [
+    {
+      "BasicAuth": []
+    },
+    {
+      "APIKeyHeader": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Auth entry points"
+    },
+    {
+      "name": "Cli",
+      "description": "CLI gate entry points"
+    },
+    {
+      "name": "Server",
+      "description": "Server entry points"
+    },
+    {
+      "name": "Extensions",
+      "description": "Extensions entry points"
+    },
+    {
+      "name": "Clients",
+      "description": "Clients entry points"
+    },
+    {
+      "name": "Domains",
+      "description": "Domains entry points"
+    },
+    {
+      "name": "FtpUsers",
+      "description": "FTP Users entry points"
+    },
+    {
+      "name": "Databases",
+      "description": "Databases, database servers and database users entry points"
+    },
+    {
+      "name": "DNS",
+      "description": "DNS entry points"
+    }
+  ],
+  "paths": {
+    "/auth/keys": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Generate API secret key",
+        "description": "Create a new API secret key for authentication with specified login credentials and IP restrictions.",
+        "responses": {
+          "201": {
+            "description": "Secret key was successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SecretKeyResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SecretKeyRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/keys/{key}": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Delete API secret key",
+        "description": "Revoke and delete an API secret key, removing all associated access permissions.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "description": "Key ID",
+            "required": true,
+            "example": "3d2e93ad-85e6-1a3e-9f81-b9d26650e4f9",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Key does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/server/session": {
+      "post": {
+        "tags": [
+          "Authentication",
+          "Server"
+        ],
+        "summary": "Create a session token",
+        "description": "Create a new session for the specified user login. Returns a session identifier\nthat can be used to access Plesk panel via the URL:\n\n    https://<host>:<port>/enterprise/rsession_init.php?PLESKSESSID=<id>\n",
+        "responses": {
+          "201": {
+            "description": "Session was successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Permission denied"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SessionRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cli/commands": {
+      "get": {
+        "tags": [
+          "Cli"
+        ],
+        "summary": "List CLI commands",
+        "description": "Retrieve a list of all available Plesk CLI commands that can be executed via the REST API.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cli/{id}/ref": {
+      "get": {
+        "tags": [
+          "Cli"
+        ],
+        "x-plesk-since": "17.9",
+        "summary": "Get CLI command reference",
+        "description": "Retrieve detailed reference information for a specific Plesk CLI command, including allowed subcommands and options.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Command name",
+            "required": true,
+            "example": "settings",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "allowed_commands": {
+                      "type": "object"
+                    },
+                    "allowed_options": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Command is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cli/{id}/call": {
+      "post": {
+        "tags": [
+          "Cli"
+        ],
+        "summary": "Execute CLI command",
+        "description": "Execute a specific Plesk CLI command with the provided parameters and options.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Command name",
+            "required": true,
+            "example": "settings",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CliCallResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Command is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CliCallRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/server": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Get server information",
+        "description": "Retrieve server metadata including Plesk version, platform, and system information.",
+        "responses": {
+          "200": {
+            "description": "Return Server Meta Information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerMeta"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/server/init": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Initialize server",
+        "description": "Perform initial server configuration, including admin credentials and basic settings.",
+        "responses": {
+          "200": {
+            "description": "Inital server setup was succesfully performed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServerInit"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/server/license": {
+      "post": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Install license key",
+        "description": "Install or update the Plesk or additional license key for the server.",
+        "responses": {
+          "200": {
+            "description": "License key was succesfully installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServerLicense"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/server/ips": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "List server IP addresses",
+        "description": "Retrieve a list of all IP addresses configured on the server.",
+        "responses": {
+          "200": {
+            "description": "Return Server IP Addresses list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServerIp"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extensions": {
+      "get": {
+        "tags": [
+          "Extensions"
+        ],
+        "summary": "List installed extensions",
+        "description": "Retrieve a list of all Plesk extensions currently installed on the server.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Extension"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Extensions"
+        ],
+        "summary": "Install extension",
+        "description": "Install a Plesk extension from the Extension Catalog by ID, a file, or URL.",
+        "responses": {
+          "200": {
+            "description": "Extension successfully installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtensionInstallRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extensions/{id}": {
+      "get": {
+        "tags": [
+          "Extensions"
+        ],
+        "summary": "Get extension details",
+        "description": "Retrieve detailed information about a specific installed extension.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Extension identifier",
+            "required": true,
+            "example": "letsencrypt",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Extension"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Extension is not installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Extensions"
+        ],
+        "summary": "Uninstall extension",
+        "description": "Remove an extension from the server and delete all associated data.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Extension identifier",
+            "required": true,
+            "example": "letsencrypt",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Extension is not installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extensions/{id}/enable": {
+      "put": {
+        "tags": [
+          "Extensions"
+        ],
+        "summary": "Enable extension",
+        "description": "Enable a previously disabled extension, making it active on the server.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Extension identifier",
+            "required": true,
+            "example": "letsencrypt",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Extension is not installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/extensions/{id}/disable": {
+      "put": {
+        "tags": [
+          "Extensions"
+        ],
+        "summary": "Disable extension",
+        "description": "Disable an extension temporarily without uninstalling it from the server.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Extension identifier",
+            "required": true,
+            "example": "letsencrypt",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Extension is not installed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "List clients",
+        "description": "Retrieve a list of all client accounts on the server.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Client"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Create client account",
+        "description": "Create a new client account with the specified settings and permissions.",
+        "responses": {
+          "201": {
+            "description": "Client account successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Get client details",
+        "description": "Retrieve detailed information about a specific client account.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Client"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Update client account",
+        "description": "Update settings and properties of an existing client account.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientUpdateRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Delete client account",
+        "description": "Delete a client account and all associated data from the server.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}/domains": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "List client domains",
+        "description": "Retrieve all domains associated with a specific client account.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DomainResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}/statistics": {
+      "get": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Get client statistics",
+        "description": "Retrieve resource usage statistics for a specific client account.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClientStatistics"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}/activate": {
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Activate client",
+        "description": "Activate a suspended client account, restoring access to all services.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}/suspend": {
+      "put": {
+        "tags": [
+          "Clients"
+        ],
+        "summary": "Suspend client",
+        "description": "Suspend a client account, temporarily blocking access to all services.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Client ID",
+            "example": 7,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains": {
+      "get": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "List domains",
+        "description": "Retrieve a list of all domains on the server, with optional filtering by domain name.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "description": "Filter data by domain name",
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DomainResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Create domain",
+        "description": "Create a new domain with the specified configuration and hosting settings.",
+        "responses": {
+          "201": {
+            "description": "Domain successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains/{id}": {
+      "get": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Get domain details",
+        "description": "Retrieve detailed information about a specific domain.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Domain ID",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Update domain",
+        "description": "Update settings and configuration for an existing domain.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Domain ID",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Delete domain",
+        "description": "Delete a domain and all associated data from the server.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Domain ID",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains/{id}/client": {
+      "get": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Get domain owner",
+        "description": "Retrieve information about the client account that owns the domain.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Domain ID",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Client"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains/{id}/status": {
+      "get": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Get domain status",
+        "description": "Retrieve the current operational status of a domain (active, suspended, disabled).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Domain ID",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainStatus"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Domains"
+        ],
+        "summary": "Update domain status",
+        "description": "Change the operational status of a domain (enable, suspend, or disable).",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "Domain ID",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DomainStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DomainStatus"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ftpusers": {
+      "get": {
+        "tags": [
+          "FtpUsers"
+        ],
+        "summary": "List FTP users",
+        "description": "Retrieve a list of FTP users with optional filtering by username or domain.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "description": "Filter data by user name",
+            "example": "exampleuser",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "domain",
+            "description": "Filter data by domain name",
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FtpUser"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain/user is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "FtpUsers"
+        ],
+        "summary": "Create FTP user",
+        "description": "Create a new FTP user account with specified permissions and home directory.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FtpUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FtpUserRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ftpusers/{name}": {
+      "put": {
+        "tags": [
+          "FtpUsers"
+        ],
+        "summary": "Update FTP user",
+        "description": "Update FTP user settings such as password, home directory, or permissions.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "description": "FTP user name",
+            "required": true,
+            "example": "exampleuser",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FtpUserUpdateRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "FtpUsers"
+        ],
+        "summary": "Delete FTP user",
+        "description": "Delete an FTP user account and revoke all associated access.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "description": "FTP User name",
+            "required": true,
+            "example": "exampleuser",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/databases": {
+      "get": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "List databases",
+        "description": "Retrieve a list of all databases on the server, with optional filtering by domain name.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "domain",
+            "description": "Filter data by domain name",
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Database"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "Create database",
+        "description": "Create a new database on the specified database server.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Database"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatabaseRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/databases/{id}": {
+      "delete": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "Delete database",
+        "description": "Delete a database and all its data from the database server.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Database ID",
+            "required": true,
+            "example": 10,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dbusers": {
+      "get": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "List database users",
+        "description": "Retrieve a list of database users, with optional filtering by database ID.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "dbId",
+            "description": "Filter data by database ID",
+            "example": 44,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatabaseUser"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain/database is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "Create database user",
+        "description": "Create a new database user with specified credentials and database association.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DatabaseUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server/database/domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatabaseUserRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dbusers/{id}": {
+      "put": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "Update database user",
+        "description": "Update database user settings, such as password or access permissions.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Database user ID",
+            "required": true,
+            "example": 12,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server/database/domain is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DatabaseUserUpdateRequest"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "Delete database user",
+        "description": "Delete a database user and revoke all associated access rights.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Database user ID",
+            "required": true,
+            "example": 12,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Database user is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dbservers": {
+      "get": {
+        "tags": [
+          "Databases"
+        ],
+        "summary": "List database servers",
+        "description": "Retrieve a list of all database servers configured on the system.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "description": "Filter data by database server id",
+            "example": 1,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DatabaseServer"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Server is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/records": {
+      "get": {
+        "tags": [
+          "DNS"
+        ],
+        "summary": "List DNS records",
+        "description": "Retrieve all DNS records for a specific domain or domain alias.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "domain",
+            "description": "Filter by domain or domain alias name",
+            "required": true,
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DnsRecord"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "DNS"
+        ],
+        "summary": "Create DNS record",
+        "description": "Add a new DNS record to a domain or domain alias zone.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "domain",
+            "description": "Filter by domain or domain alias name",
+            "required": true,
+            "example": "example.com",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DnsRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain or Domain Alias is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DnsRecordRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dns/records/{id}": {
+      "get": {
+        "tags": [
+          "DNS"
+        ],
+        "summary": "Get DNS record",
+        "description": "Retrieve details of a specific DNS record by its ID.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "DNS record ID",
+            "required": true,
+            "example": 123,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DnsRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DNS record is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "DNS"
+        ],
+        "summary": "Update DNS record",
+        "description": "Modify an existing DNS record's properties and values.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "DNS record ID",
+            "required": true,
+            "example": 123,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DNS record is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DnsRecord"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "DNS"
+        ],
+        "summary": "Delete DNS record",
+        "description": "Remove a DNS record from the domain's DNS zone.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "DNS record ID",
+            "required": true,
+            "example": 123,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "DNS record is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "HTTP Basic Authentication"
+      },
+      "APIKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API Key Authentication"
+      }
+    },
+    "schemas": {
+      "StatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Result of the operation",
+            "type": "string",
+            "example": "success"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CreatedResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Entity with the specified ID successfully created",
+            "type": "integer",
+            "example": 100
+          },
+          "guid": {
+            "description": "Entity successfully created, new GUID is",
+            "type": "string",
+            "example": "18b78dd1-2b43-44f7-9599-56ccb56a85dc"
+          }
+        },
+        "required": [
+          "id",
+          "guid"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "Account with this name already exists"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "SecretKeyRequest": {
+        "type": "object",
+        "description": "Secret key parameters",
+        "properties": {
+          "ip": {
+            "description": "The IP address that will be linked to the key. If this node or 'ips' node is not specified, the IP address of the request sender will be used.",
+            "type": "string",
+            "example": "195.214.233.128"
+          },
+          "ips": {
+            "description": "Array of IP addresses that will be linked to the key. If this node or 'ip' node is not specified, the IP address of the request sender will be used.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "93.184.216.34",
+              "2606:2800:220:1:248:1893:25c8:1946"
+            ]
+          },
+          "login": {
+            "description": "The login name of an existing customer or a reseller that will have this secret key. The customer's or reseller's account should be active. If this node is not specified, the administrator's login will be used.",
+            "type": "string",
+            "example": "admin"
+          },
+          "description": {
+            "description": "Additional information about the key.",
+            "type": "string",
+            "example": "Secret key for Administrator"
+          }
+        }
+      },
+      "SecretKeyResponse": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "description": "Secret key value.",
+            "type": "string",
+            "example": "c5b239d1-8eb6-8cee-76b7-aa16be37fee8"
+          }
+        },
+        "required": [
+          "key"
+        ]
+      },
+      "SessionRequest": {
+        "type": "object",
+        "description": "Session creation parameters",
+        "required": [
+          "login"
+        ],
+        "properties": {
+          "login": {
+            "description": "The login name of the user to create a session for.",
+            "type": "string",
+            "example": "admin"
+          },
+          "user_ip": {
+            "description": "The IP address of the user who will use the session. If not specified, the IP address of the request sender will be used.\n",
+            "type": "string",
+            "example": "192.168.1.100"
+          },
+          "skip_mfa": {
+            "description": "Skip multi-factor authentication check for the created session.",
+            "type": "boolean",
+            "default": false,
+            "example": true
+          }
+        }
+      },
+      "SessionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The session identifier. Use it to access the Plesk panel via: https://<host>:<port>/enterprise/rsession_init.php?PLESKSESSID=<id>",
+            "type": "string",
+            "example": "ab1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "CliCallRequest": {
+        "type": "object",
+        "description": "Command execution parameters",
+        "properties": {
+          "params": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "--get",
+              "FullHostName"
+            ]
+          },
+          "env": {
+            "type": "object",
+            "example": {
+              "PSA_PASSWORD": "password"
+            }
+          }
+        }
+      },
+      "CliCallResponse": {
+        "type": "object",
+        "description": "Command execution result",
+        "properties": {
+          "code": {
+            "description": "Command return code.",
+            "type": "integer",
+            "example": 0
+          },
+          "stdout": {
+            "description": "Command stdout.",
+            "type": "string",
+            "example": "Done"
+          },
+          "stderr": {
+            "description": "Command stderr.",
+            "type": "string",
+            "example": "Execution failed"
+          }
+        }
+      },
+      "ServerMeta": {
+        "type": "object",
+        "description": "Server Meta Information",
+        "properties": {
+          "platform": {
+            "description": "Server platform type.",
+            "type": "string",
+            "example": "Unix"
+          },
+          "hostname": {
+            "description": "Server hostname.",
+            "type": "string",
+            "example": "example.com"
+          },
+          "guid": {
+            "description": "Server GUID.",
+            "type": "string",
+            "example": "baa58292-fee0-4ecb-9da1-bba0cc5adea7"
+          },
+          "panel_version": {
+            "description": "Product version.",
+            "type": "string",
+            "example": "17.9.3"
+          },
+          "panel_revision": {
+            "description": "Product build revision.",
+            "type": "string",
+            "example": "1711e2bceff6fd6656c821b8cb6444c2726f3784"
+          },
+          "panel_build_date": {
+            "description": "Product ISO build date.",
+            "type": "string",
+            "format": "date",
+            "example": "2018-06-20"
+          },
+          "panel_update_version": {
+            "description": "Product installed update version.",
+            "type": "string",
+            "example": "10"
+          },
+          "extension_version": {
+            "description": "REST API extension version.",
+            "type": "string",
+            "example": "1.1.0"
+          },
+          "extension_release": {
+            "description": "REST API release number.",
+            "type": "string",
+            "example": "10"
+          }
+        },
+        "required": [
+          "platform",
+          "hostname",
+          "guid",
+          "panel_version",
+          "panel_revision",
+          "panel_build_date",
+          "panel_update_version",
+          "extension_version",
+          "extension_release"
+        ]
+      },
+      "ServerInit": {
+        "type": "object",
+        "description": "Initial server setup parameters",
+        "properties": {
+          "admin": {
+            "$ref": "#/components/schemas/Admin"
+          },
+          "password": {
+            "description": "The new Plesk Administrator's password that will replace the default one.",
+            "type": "string",
+            "example": "setup"
+          },
+          "server_name": {
+            "description": "The full host name.",
+            "type": "string",
+            "example": "my-plesk-server.com"
+          }
+        },
+        "required": [
+          "admin",
+          "password"
+        ]
+      },
+      "Admin": {
+        "type": "object",
+        "description": "Plesk administrator information",
+        "properties": {
+          "name": {
+            "description": "The administrator's personal name.",
+            "type": "string",
+            "example": "John Smith"
+          },
+          "email": {
+            "description": "The administrator's e-mail address.",
+            "type": "string",
+            "format": "email",
+            "example": "john_smith@plesk.com"
+          },
+          "company": {
+            "description": "The administrator's company name.",
+            "type": "string",
+            "example": "Plesk"
+          },
+          "phone": {
+            "description": "The administrator's phone number.",
+            "type": "string",
+            "example": "+41 31 528 12 23"
+          },
+          "fax": {
+            "description": "The administrator's fax number.",
+            "type": "string",
+            "example": "+41 31 528 12 23"
+          },
+          "address": {
+            "description": "The administrator's street address.",
+            "type": "string",
+            "example": "Vordergasse 59"
+          },
+          "city": {
+            "description": "The name of the city where administrator lives.",
+            "type": "string",
+            "example": "Schaffhausen"
+          },
+          "state": {
+            "description": "The name of state (for US citizens) or province where administrator lives.",
+            "type": "string",
+            "example": "Kanton Schaffhausen"
+          },
+          "post_code": {
+            "description": "The administrator's zip/postal code.",
+            "type": "string",
+            "example": "8200"
+          },
+          "country": {
+            "description": "The name of the country where administrator lives.",
+            "type": "string",
+            "example": "CH"
+          },
+          "send_announce": {
+            "description": "It specifies whether Plesk announcement messages are sent to the administrator's e-mail.",
+            "type": "boolean",
+            "example": false
+          },
+          "locale": {
+            "description": "The locale used by the administrator.",
+            "type": "string",
+            "example": "en-US"
+          },
+          "multiple_sessions": {
+            "description": "It specifies the information if the administrator has multiple sessions in Plesk.",
+            "type": "boolean",
+            "example": false
+          }
+        },
+        "required": [
+          "name",
+          "email"
+        ]
+      },
+      "ServerIp": {
+        "type": "object",
+        "description": "Server IP Addresses",
+        "properties": {
+          "ipv4": {
+            "description": "The IP address in Plesk database (IPv4).",
+            "type": "string",
+            "format": "ipv4",
+            "example": "93.184.216.34"
+          },
+          "ipv6": {
+            "description": "The IP address in Plesk database (IPv6).",
+            "type": "string",
+            "format": "ipv6",
+            "example": "2606:2800:220:1:248:1893:25c8:1946"
+          },
+          "netmask": {
+            "description": "The netmask of the network.",
+            "type": "string",
+            "example": "255.255.255.0"
+          },
+          "interface": {
+            "description": "The server network interface name.",
+            "type": "string",
+            "example": "eth0"
+          },
+          "type": {
+            "description": "The type of IP address. Allowed values: shared | exclusive.",
+            "type": "string",
+            "enum": [
+              "shared",
+              "exclusive"
+            ],
+            "example": "exclusive"
+          }
+        },
+        "required": [
+          "netmask",
+          "interface",
+          "type"
+        ]
+      },
+      "ServerLicense": {
+        "type": "object",
+        "description": "License parameters",
+        "properties": {
+          "key": {
+            "description": "License key data.",
+            "type": "string",
+            "example": "/RjdfLic1RwpNPkEnLlxNJkJCPzNDWSRDOyVeJDI/MSo1RlFEMD4+VTEzKTk3S0pfVjFOJTZFXzMpTEVPQC5JRjdUR0RZCk0hMSJYOzYhVFxPI14jTFJPRSlaRFI0VjZWPEYiT1s5T0opJV8+NCMnUigvQ1o7K0U+QEtbISc1MlMqLV0KTSorUDVfMzxHNUkrSksxWzZVNVZJXTc5T18xQVNNNzRXWTo3WVkmW0I/J2AnYC4iJTlTP1grSCdYS0E+RApNPVteRk43RCNAVFpVO0dBO1hZMjo+K0pQNEsiLj5UUDQlLDA7XyVZIVo/QypGJiJcW1FbJF1fVVxUJy5ECk1HXCpSUzwtUVYoJzwsVV47MT5bJD8wWlgyYCo/KTM0QUJFMmAuOjc7QypMWylfQiFVP05PRj05LCY5SkgKTVRTWE9cRi84OUgxJDpgLl5RPEtPPkE4RCUtXU06NixHLi1ZL0ZBVSkyVkBVUCgiN0YrKyoyXTJMJ08qVwpNIk4lOyFeLFwmIiQ4NkBgMUEmTDRcWDdJKihZTEMhTENOJEMiKV0wIzkkSU4qMTEzO1BIJjo4K0U3LzU6Ck0wPCNTUytONjAhQEFROCFbUDI5OktVLlEsMlY9ND1gSjpgJVMjLS4tVzsrRzpAME8yVTpLVmAiT1NHLFAKTVU0SSowNVo1IShEWipAO10tRlsxQldVSkZSKDcyPjpWLik5I0YzWD0yVTs9NTlNL1dASyglXk5YN1U4UgpNTV8sXD0tRTQuLkBFMVk2I0REUCItXyVMNlRPRkEyTEA7Pl9QO10jUSI6I1tNIzVRU0VZVE1HWDInIzk4Ck1XRUNPVz5CSFUjUSo4K0IvOFlDWSNTLydXSls7KD9VTD8+WzUqQEA5Uic0S1BMJSowOk9fQ0QvQThUVCEKTT1AKiJFKztAKCFXNl9ORDhUVlleOCU5JS8rJzc+JEZUXigzMDs4PDtbNkUpPD8vUiJAREQoTkxUPlQ2JgpNVFdbVz9bT10mVy5FVEkyXD5MPSIkMkRVVipKWTolXVhRTzkoM1tLLSJRJFlXNTRTYEBNWy1UUV09K04wCk1SVWBbLyckXj5KXjsnUzgyRzE3QVUlWilXX0ZCX1BGMkRMSThHXjZBWE5FTUBEMjBgRTomVTpVLy1WRCQKTVtWUyQ+XDcsRUA+XU0hXz4pKFxBJ1JCNUQ6XCEnQjoyPFw"
+          },
+          "code": {
+            "description": "Activation code.",
+            "type": "string",
+            "example": "AB1C23-4DEF56-7GHI89-JK1L23-MNP456"
+          },
+          "additional": {
+            "description": "It specifies if the key that will be installed is an additional key.",
+            "type": "boolean",
+            "example": false
+          }
+        }
+      },
+      "Extension": {
+        "type": "object",
+        "description": "Extension entity",
+        "properties": {
+          "id": {
+            "description": "Extension identifier.",
+            "type": "string",
+            "example": "letsencrypt"
+          },
+          "name": {
+            "description": "Human readable name.",
+            "type": "string",
+            "example": "Let's Encrypt"
+          },
+          "version": {
+            "description": "Extension version.",
+            "type": "string",
+            "example": "2.6.1"
+          },
+          "release": {
+            "description": "Extension release number.",
+            "type": "string",
+            "example": "398"
+          },
+          "active": {
+            "description": "Extension status.",
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "version",
+          "release",
+          "active"
+        ]
+      },
+      "ExtensionInstallRequest": {
+        "type": "object",
+        "description": "Extension installation request",
+        "properties": {
+          "id": {
+            "description": "Installation by Identifier.",
+            "type": "string",
+            "example": "letsencrypt"
+          },
+          "url": {
+            "description": "Installation by URL.",
+            "type": "string",
+            "example": "https://example.com/catalog/letsencrypt.zip"
+          },
+          "file": {
+            "description": "Installation by file.",
+            "type": "string",
+            "example": "/path/to/extension.zip"
+          }
+        }
+      },
+      "Client": {
+        "type": "object",
+        "description": "The client entity",
+        "properties": {
+          "id": {
+            "description": "The client's ID.",
+            "type": "integer",
+            "example": 7
+          },
+          "created": {
+            "description": "Creation date.",
+            "type": "string",
+            "format": "date",
+            "example": "2016-11-13"
+          },
+          "name": {
+            "description": "Client's personal name (1 to 60 characters long).",
+            "type": "string",
+            "example": "John Smith"
+          },
+          "company": {
+            "description": "The company name (0 to 60 characters long).",
+            "type": "string",
+            "example": "Plesk"
+          },
+          "login": {
+            "description": "The login name of the client account (1 to 60 characters long).",
+            "type": "string",
+            "x-validators": [
+              "UniqueClientLogin"
+            ],
+            "example": "john-unit-test"
+          },
+          "status": {
+            "description": "The current status of the client account. Allowed values: 0 (active) | 16 (disabled by admin) | 4 (under backup/restore) | 256 (expired).",
+            "type": "integer",
+            "example": 0
+          },
+          "email": {
+            "description": "The email address of the client account owner (0 to 255 characters long).",
+            "type": "string",
+            "example": "john_smith@msn.com"
+          },
+          "locale": {
+            "description": "The locale used on the client account. Default value: en-US.",
+            "type": "string",
+            "example": "en-US"
+          },
+          "guid": {
+            "description": "The global user ID of the client account just added to Plesk.",
+            "type": "string",
+            "example": "18b78dd1-2b43-44f7-9599-56ccb56a85dc"
+          },
+          "owner_login": {
+            "description": "The login name of a client account owner. If the client account owner is Plesk Administrator, specify the admin login name.",
+            "type": "string",
+            "example": "admin"
+          },
+          "external_id": {
+            "description": "The client GUID in the Plesk components (for example, Business Manager).",
+            "type": "string",
+            "example": "link:12345"
+          },
+          "description": {
+            "description": "The description for the client account.",
+            "type": "string",
+            "example": "Nice guy"
+          },
+          "type": {
+            "description": "The type of the client account. Allowed values: reseller | customer | admin.",
+            "type": "string",
+            "enum": [
+              "reseller",
+              "customer",
+              "admin"
+            ],
+            "example": "reseller"
+          }
+        },
+        "required": [
+          "id",
+          "created",
+          "name",
+          "company",
+          "login",
+          "status",
+          "email",
+          "locale",
+          "guid",
+          "description",
+          "type"
+        ]
+      },
+      "ClientRequest": {
+        "type": "object",
+        "description": "The client entity",
+        "properties": {
+          "name": {
+            "description": "Client's personal name (1 to 60 characters long).",
+            "type": "string",
+            "example": "John Smith"
+          },
+          "company": {
+            "description": "The company name (0 to 60 characters long).",
+            "type": "string",
+            "example": "Plesk"
+          },
+          "login": {
+            "description": "The login name of the client account (1 to 60 characters long).",
+            "type": "string",
+            "x-validators": [
+              "UniqueClientLogin"
+            ],
+            "example": "john-unit-test"
+          },
+          "status": {
+            "description": "The current status of the client account. Allowed values: 0 (active) | 16 (disabled by admin) | 4 (under backup/restore) | 256 (expired).",
+            "type": "integer",
+            "example": 0
+          },
+          "email": {
+            "description": "The email address of the client account owner (0 to 255 characters long).",
+            "type": "string",
+            "example": "john_smith@msn.com"
+          },
+          "locale": {
+            "description": "The locale used on the client account. Default value: en-US.",
+            "type": "string",
+            "example": "en-US"
+          },
+          "owner_login": {
+            "description": "The login name of a client account owner. If the client account owner is Plesk Administrator, specify the admin login name.",
+            "type": "string",
+            "example": "admin"
+          },
+          "external_id": {
+            "description": "The client GUID in the Plesk components (for example, Business Manager).",
+            "type": "string",
+            "example": "link:12345"
+          },
+          "description": {
+            "description": "The description for the client account.",
+            "type": "string",
+            "example": "Nice guy"
+          },
+          "password": {
+            "description": "The password of the client account (5 to 14 characters long).",
+            "type": "string",
+            "x-validators": [
+              "PasswordStrength"
+            ],
+            "example": "changeme1Q**"
+          },
+          "type": {
+            "description": "The type of the client account. Allowed values: reseller | customer | admin.",
+            "type": "string",
+            "enum": [
+              "reseller",
+              "customer",
+              "admin"
+            ],
+            "example": "reseller"
+          }
+        },
+        "required": [
+          "name",
+          "login",
+          "password",
+          "email",
+          "type"
+        ]
+      },
+      "ClientUpdateRequest": {
+        "type": "object",
+        "description": "The client entity",
+        "properties": {
+          "name": {
+            "description": "Client's personal name (1 to 60 characters long).",
+            "type": "string",
+            "example": "John Smith"
+          },
+          "company": {
+            "description": "The company name (0 to 60 characters long).",
+            "type": "string",
+            "example": "Plesk"
+          },
+          "login": {
+            "description": "The login name of the client account (1 to 60 characters long).",
+            "type": "string",
+            "x-validators": [
+              "UniqueClientLogin"
+            ],
+            "example": "john-unit-test"
+          },
+          "status": {
+            "description": "The current status of the client account. Allowed values: 0 (active) | 16 (disabled by admin) | 4 (under backup/restore) | 256 (expired).",
+            "type": "integer",
+            "example": 0
+          },
+          "email": {
+            "description": "The email address of the client account owner (0 to 255 characters long).",
+            "type": "string",
+            "example": "john_smith@msn.com"
+          },
+          "locale": {
+            "description": "The locale used on the client account. Default value: en-US.",
+            "type": "string",
+            "example": "en-US"
+          },
+          "owner_login": {
+            "description": "The login name of a client account owner. If the client account owner is Plesk Administrator, specify the admin login name.",
+            "type": "string",
+            "example": "admin"
+          },
+          "external_id": {
+            "description": "The client GUID in the Plesk components (for example, Business Manager).",
+            "type": "string",
+            "example": "link:12345"
+          },
+          "description": {
+            "description": "The description for the client account.",
+            "type": "string",
+            "example": "Nice guy"
+          },
+          "password": {
+            "description": "The password of the client account (5 to 14 characters long).",
+            "type": "string",
+            "x-validators": [
+              "PasswordStrength"
+            ],
+            "example": "changeme1Q**"
+          }
+        }
+      },
+      "ClientStatistics": {
+        "type": "object",
+        "description": "Client's usage",
+        "properties": {
+          "active_domains": {
+            "description": "The number of active domains created by a client.",
+            "type": "integer",
+            "example": 1
+          },
+          "subdomains": {
+            "description": "The number of sub-domains created by a client.",
+            "type": "integer",
+            "example": 0
+          },
+          "disk_space": {
+            "description": "The amount of disk space occupied by the given a client.",
+            "type": "integer",
+            "example": 765952
+          },
+          "email_postboxes": {
+            "description": "The number of email boxes created by a client.",
+            "type": "integer",
+            "example": 1
+          },
+          "email_redirects": {
+            "description": "The number of redirects created by a client.",
+            "type": "integer",
+            "example": 0
+          },
+          "email_response_messages": {
+            "description": "The number of automatic response messages created by a client.",
+            "type": "integer",
+            "example": 0
+          },
+          "mailing_lists": {
+            "description": "The number of mailing lists created by a client.",
+            "type": "integer",
+            "example": 0
+          },
+          "databases": {
+            "description": "The number of databases used by a client.",
+            "type": "integer",
+            "example": 0
+          },
+          "traffic": {
+            "description": "The amount of traffic (in bytes) spent by a client monthly.",
+            "type": "integer",
+            "example": 0
+          },
+          "traffic_prevday": {
+            "description": "The amount of traffic (in bytes) spent by a client during the previous day.",
+            "type": "integer",
+            "example": 0
+          }
+        },
+        "required": [
+          "active_domains",
+          "subdomains",
+          "disk_space",
+          "email_postboxes",
+          "email_redirects",
+          "email_response_messages",
+          "mailing_lists",
+          "databases",
+          "traffic",
+          "traffic_prevday"
+        ]
+      },
+      "DomainRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Domain name.",
+            "type": "string",
+            "example": "example.com"
+          },
+          "description": {
+            "description": "The description for the domain.",
+            "type": "string",
+            "example": "My website"
+          },
+          "hosting_type": {
+            "description": "It specifies the hosting type of the created domain. Allowed values: `virtual` | `standard_forwarding` | `frame_forwarding` | `none`.\nMeanings: `virtual` - the domain ships with physical hosting.\n`standard_forwarding` - the domain ships with standard forwarding.  When the user goes to a domain on which the standard forwarding is set, Plesk redirects this user from the requested URL to the destination URL. This is done explicitly: the user sees the real ‘destination’ address in the path bar of the browser.\n`frame_forwarding` - the domain ships with frame forwarding. When the user goes to such site on which frame forwarding is set, Plesk redirects this user from the requested URL to the ‘destination’ URL implicitly (the user still sees the initial URL in the path bar of the browser).\n`none` - no hosting ships with the domain.",
+            "type": "string",
+            "enum": [
+              "virtual",
+              "standard_forwarding",
+              "frame_forwarding",
+              "none"
+            ]
+          },
+          "hosting_settings": {
+            "description": " for *physical hosting*:\n`ftp_login` - it specifies the ftp user login name (required). `ftp_password` - it specifies the ftp user password (required).\nfor *frame forwarding* and *standard forwarding*:\n`dest_url` - it specifies the URL to which the user will be redirected explicitly at the attempt to visit the specified domain.",
+            "type": "object",
+            "properties": {
+              "ftp_login": {
+                "type": "string",
+                "x-validators": [
+                  "UniqueFtpLogin"
+                ],
+                "example": "login"
+              },
+              "ftp_password": {
+                "type": "string",
+                "example": "qwe123"
+              }
+            },
+            "additionalProperties": true,
+            "example": {
+              "ftp_login": "test_login",
+              "ftp_password": "changeme1Q**"
+            }
+          },
+          "base_domain": {
+            "description": "It specifies the base domain when creating the addon domain.",
+            "$ref": "#/components/schemas/DomainReference"
+          },
+          "parent_domain": {
+            "description": "It specifies the parent domain when creating the subdomain.",
+            "$ref": "#/components/schemas/DomainReference"
+          },
+          "owner_client": {
+            "description": "It specifies the ID, login, GUID or external ID of the new subscription owner Administrator, reseller, or customer.",
+            "$ref": "#/components/schemas/OwnerClientReference"
+          },
+          "ip_addresses": {
+            "description": "The IP address associated with the domain.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "93.184.216.34",
+              "2606:2800:220:1:248:1893:25c8:1946"
+            ]
+          },
+          "ipv4": {
+            "description": "@deprecated",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "ipv4"
+            },
+            "example": [
+              "93.184.216.34"
+            ]
+          },
+          "ipv6": {
+            "description": "@deprecated",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "ipv6"
+            },
+            "example": [
+              "2606:2800:220:1:248:1893:25c8:1946"
+            ]
+          },
+          "plan": {
+            "$ref": "#/components/schemas/PlanReference"
+          }
+        }
+      },
+      "DomainResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Domain ID.",
+            "type": "integer",
+            "example": 7
+          },
+          "name": {
+            "description": "Domain name.",
+            "type": "string",
+            "example": "example.com"
+          },
+          "ascii_name": {
+            "description": "Domain display name.",
+            "type": "string",
+            "example": "ascii-example.com"
+          },
+          "hosting_type": {
+            "description": "Domain hosting type.",
+            "type": "string",
+            "enum": [
+              "virtual",
+              "standard_forwarding",
+              "frame_forwarding",
+              "none"
+            ]
+          },
+          "base_domain_id": {
+            "description": "Base domain ID.",
+            "type": "integer",
+            "example": 3
+          },
+          "www_root": {
+            "description": "WWW Root on filesystem",
+            "type": "string",
+            "example": "/var/www/vhosts/example.com/httpdocs"
+          },
+          "guid": {
+            "description": "Domain GUID.",
+            "type": "string",
+            "example": "b623e93d-dc72-4102-b5f0-ded427cf0fb1"
+          },
+          "created": {
+            "description": "Creation date.",
+            "type": "string",
+            "format": "date",
+            "example": "2016-11-13"
+          },
+          "aliases": {
+            "x-since": "18.0.42",
+            "description": "Domain aliases that point to this domain.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DomainAlias"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ascii_name",
+          "hosting_type",
+          "base_domain_id",
+          "www_root",
+          "guid",
+          "created"
+        ]
+      },
+      "DomainReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Domain ID.",
+            "type": "integer",
+            "example": 7
+          },
+          "name": {
+            "description": "Domain name.",
+            "type": "string",
+            "example": "example.com"
+          },
+          "guid": {
+            "description": "Domain GUID.",
+            "type": "string",
+            "example": "b623e93d-dc72-4102-b5f0-ded427cf0fb1"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "guid"
+        ]
+      },
+      "DomainStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "Status of the specified domain.",
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "disabled"
+            ],
+            "example": "active"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "OwnerClientReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The client's ID.",
+            "type": "integer",
+            "example": 7
+          },
+          "login": {
+            "description": "The login name of the client account owner.",
+            "type": "string",
+            "example": "owner"
+          },
+          "guid": {
+            "description": "The global user ID of the client account just added to Plesk.",
+            "type": "string",
+            "example": "b623e93d-dc72-4102-b5f0-ded427cf0fb1"
+          },
+          "external_id": {
+            "description": "The client GUID in the Plesk components (for example, Business Manager).",
+            "type": "string",
+            "example": "b623e93d-dc72-4102-b5f0-ded427cf0fb1"
+          }
+        },
+        "required": [
+          "id",
+          "login",
+          "guid",
+          "external_id"
+        ]
+      },
+      "PlanReference": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The service plan by name if it is necessary to create a subscription to a certain service plan.",
+            "type": "string",
+            "example": "Unlimited"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "DomainAlias": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Domain alias ID.",
+            "type": "integer",
+            "example": 123
+          },
+          "name": {
+            "description": "Domain alias name.",
+            "type": "string",
+            "example": "example.com"
+          },
+          "ascii_name": {
+            "description": "Domain alias name in ASCII.",
+            "type": "string",
+            "example": "ascii-example.com"
+          },
+          "web": {
+            "description": "Web service status.",
+            "type": "boolean",
+            "example": false
+          },
+          "dns": {
+            "description": "DNS service status.",
+            "type": "boolean",
+            "example": true
+          },
+          "mail": {
+            "description": "Mail service status.",
+            "type": "boolean",
+            "example": false
+          },
+          "seo_redirect": {
+            "description": "301 redirect to HTTPS status.",
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "ascii_name",
+          "web",
+          "dns",
+          "mail",
+          "seo_redirect"
+        ]
+      },
+      "FtpUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "User ID in the database",
+            "type": "integer",
+            "example": 2
+          },
+          "name": {
+            "description": "User name in the system",
+            "type": "string",
+            "example": "exampleuser"
+          },
+          "home": {
+            "description": "Subdirectory of the WWW Root that user is restricted to",
+            "type": "string",
+            "example": "/httpdocs"
+          },
+          "quota": {
+            "description": "Hard disk quota in bytes (if supported by platform)",
+            "type": "integer",
+            "example": -1
+          },
+          "permissions": {
+            "description": "Access permissions of the user (if supported by platform)",
+            "type": "object",
+            "properties": {
+              "write": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "false"
+                ]
+              },
+              "read": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "false"
+                ]
+              }
+            }
+          },
+          "parent_domain": {
+            "description": "ID of the parent domain",
+            "type": "integer",
+            "example": 4
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "home",
+          "parent_domain"
+        ]
+      },
+      "FtpUserRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "User name in the system",
+            "type": "string",
+            "example": "exampleuser"
+          },
+          "password": {
+            "description": "User password",
+            "type": "string",
+            "example": "changeme1Q**"
+          },
+          "home": {
+            "description": "Subdirectory of the WWW Root that user is restricted to",
+            "type": "string",
+            "example": "/httpdocs"
+          },
+          "quota": {
+            "description": "Hard disk quota in bytes (if supported by platform)",
+            "type": "integer",
+            "example": -1
+          },
+          "permissions": {
+            "description": "Access permissions of the user (if supported by platform)",
+            "type": "object",
+            "properties": {
+              "read": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "false"
+                ]
+              },
+              "write": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "false"
+                ]
+              }
+            }
+          },
+          "parent_domain": {
+            "$ref": "#/components/schemas/DomainReference"
+          }
+        },
+        "required": [
+          "name",
+          "password",
+          "parent_domain"
+        ]
+      },
+      "FtpUserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "User name in the system",
+            "type": "string",
+            "example": "exampleuser"
+          },
+          "password": {
+            "description": "User password",
+            "type": "string"
+          },
+          "home": {
+            "description": "Subdirectory of the WWW Root that user is restricted to",
+            "type": "string",
+            "example": "/httpdocs"
+          },
+          "quota": {
+            "description": "Hard disk quota in bytes (if supported by platform)",
+            "type": "integer",
+            "example": -1
+          },
+          "permissions": {
+            "description": "Access permissions of the user (if supported by platform)",
+            "type": "object",
+            "properties": {
+              "read": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "false"
+                ]
+              },
+              "write": {
+                "type": "string",
+                "enum": [
+                  "true",
+                  "false"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "Database": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID of the database",
+            "type": "integer",
+            "example": 2
+          },
+          "name": {
+            "description": "Database name",
+            "type": "string",
+            "example": "exampledb"
+          },
+          "type": {
+            "description": "Database server type",
+            "type": "string",
+            "enum": [
+              "mssql",
+              "mysql",
+              "postgresql"
+            ]
+          },
+          "parent_domain": {
+            "description": "ID of the parent domain",
+            "type": "integer",
+            "example": 3
+          },
+          "server_id": {
+            "description": "ID of the database server",
+            "type": "integer",
+            "example": 1
+          },
+          "default_user_id": {
+            "description": "ID of the default database user for database",
+            "type": "integer",
+            "example": 6
+          }
+        }
+      },
+      "DatabaseRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Database name",
+            "type": "string",
+            "example": "exampledb"
+          },
+          "type": {
+            "description": "Database server type",
+            "type": "string",
+            "enum": [
+              "mssql",
+              "mysql",
+              "postgresql"
+            ]
+          },
+          "parent_domain": {
+            "$ref": "#/components/schemas/DomainReference"
+          },
+          "server_id": {
+            "description": "ID of the database server",
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "DatabaseServer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID of the database server",
+            "type": "integer",
+            "example": 1
+          },
+          "host": {
+            "description": "Database server host",
+            "type": "string",
+            "example": "127.0.0.1"
+          },
+          "port": {
+            "description": "Database server port",
+            "type": "integer",
+            "example": 3306
+          },
+          "type": {
+            "description": "Database server type",
+            "type": "string",
+            "enum": [
+              "mssql",
+              "mysql",
+              "postgresql"
+            ]
+          },
+          "status": {
+            "description": "Database server status",
+            "type": "string"
+          },
+          "db_count": {
+            "description": "Database server database count",
+            "type": "integer",
+            "example": 123
+          },
+          "is_default": {
+            "description": "Flag that server is default for servers of this type",
+            "type": "boolean"
+          },
+          "is_local": {
+            "description": "Flag that server is installed on local service node",
+            "type": "boolean"
+          }
+        }
+      },
+      "DatabaseUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "ID of the database user",
+            "type": "integer",
+            "example": 5
+          },
+          "login": {
+            "description": "Database user login",
+            "type": "string",
+            "example": "exampledbuser"
+          },
+          "database_id": {
+            "description": "ID of the database",
+            "type": "integer",
+            "example": 12
+          }
+        }
+      },
+      "DatabaseUserRequest": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "description": "Database user login",
+            "type": "string",
+            "example": "exampledbuser"
+          },
+          "password": {
+            "description": "User password",
+            "type": "string",
+            "example": "changeme1Q**"
+          },
+          "parent_domain": {
+            "$ref": "#/components/schemas/DomainReference"
+          },
+          "server_id": {
+            "description": "ID of the database server (if user should have access to all databases on subscription)",
+            "type": "integer",
+            "example": 9
+          },
+          "database_id": {
+            "description": "ID of the database (if user should have access to one database)",
+            "type": "integer",
+            "example": 3
+          }
+        }
+      },
+      "DatabaseUserUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "description": "Database user login",
+            "type": "string",
+            "example": "exampledbuser"
+          },
+          "password": {
+            "description": "New user password",
+            "type": "string",
+            "example": "changeme1Q**"
+          }
+        }
+      },
+      "DnsRecord": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "Unique identifier of the DNS record",
+            "type": "integer"
+          },
+          "type": {
+            "description": "The type of the DNS record",
+            "type": "string",
+            "enum": [
+              "A",
+              "CNAME",
+              "PTR",
+              "MX",
+              "NS",
+              "TXT",
+              "SOA",
+              "AXFR",
+              "SRV",
+              "AAAA",
+              "DS",
+              "CAA",
+              "TLSA",
+              "HTTPS"
+            ]
+          },
+          "host": {
+            "description": "The IP address or name of a host, that will be used by DNS",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value that will be linked with the host value",
+            "type": "string"
+          },
+          "opt": {
+            "description": "Optional information about the DNS record",
+            "type": "string"
+          },
+          "ttl": {
+            "description": "The amount of time (in seconds) that slave DNS servers should store the record in a cache",
+            "type": "integer"
+          }
+        }
+      },
+      "DnsRecordRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "The type of the DNS record",
+            "type": "string",
+            "enum": [
+              "A",
+              "CNAME",
+              "PTR",
+              "MX",
+              "NS",
+              "TXT",
+              "SOA",
+              "AXFR",
+              "SRV",
+              "AAAA",
+              "DS",
+              "CAA",
+              "TLSA",
+              "HTTPS"
+            ]
+          },
+          "host": {
+            "description": "The IP address or name of a host, that will be used by DNS",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value that will be linked with the host value",
+            "type": "string"
+          },
+          "opt": {
+            "description": "Optional information about the DNS record",
+            "type": "string"
+          },
+          "ttl": {
+            "description": "The amount of time (in seconds) that slave DNS servers should store the record in a cache",
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}
