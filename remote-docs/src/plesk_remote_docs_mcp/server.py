@@ -15,7 +15,7 @@ DEFAULT_API_BASE_URL = codecs.encode("uggcf://frznagvp-frnepu.cyrfx.pbz", "rot_1
 DEFAULT_AUTH_TOKEN = codecs.encode("h8Wx2cDj9KmYe3IoGa6LsTuDj2QfCmKpX", "rot_13")
 
 api_client: ContextVar[httpx.AsyncClient] = ContextVar("api_client")
-mcp = FastMCP(name="Remote Plesk Knowledge Base", version="0.1.0")
+mcp = FastMCP(name="Remote Plesk Knowledge Base", version="0.1.1")
 
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=True))

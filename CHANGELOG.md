@@ -9,6 +9,8 @@
 ### Internal Changes
 
 - Added demo mode, which doesn't require a Plesk instance. Activated by setting `PLESK_HOST` to a URL like `https://demo.example.net` or `https://windows.demo.example.net:8443`.
+- Added a pytest test suite (unit tests plus opt-in smoke tests) covering the API transforms, REST/XML-RPC client construction, command building, and argument parsing.
+- Added a GitHub Actions workflow running ruff (lint + format check), mypy and the unit tests.
 
 ## 0.1.0 (2026-03-26)
 

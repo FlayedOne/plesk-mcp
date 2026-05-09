@@ -37,3 +37,18 @@ Configure the server in your VS Code `mcp.json` or equivalent (in other agents o
 You may want to use env file (e.g. via `"envFile"` parameter) if your agent or app supports it. This will avoid putting the API key directly in the config file.
 
 See `uvx plesk-local-docs-mcp@latest --help` for details on available options and environment variables.
+
+## Development
+
+```bash
+uv run ruff format
+uv run ruff check --fix
+uv run mypy .
+uv run pytest
+```
+
+Smoke tests that exercise the real OpenAI embeddings API and download the actual knowledge base are skipped by default. To run them:
+
+```bash
+OPENAI_API_KEY=sk-... uv run pytest -m smoke
+```

@@ -1,6 +1,6 @@
 [project]
 name = "plesk-local-docs-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "MCP server providing access to the Plesk knowledge base using a local database"
 readme = "README.md"
 license = "MIT"
@@ -31,6 +31,14 @@ dependencies = [
     "httpx",
     "openai",
     "platformdirs",
+]
+
+[dependency-groups]
+dev = [
+    "mypy",
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
 ]
 
 [build-system]

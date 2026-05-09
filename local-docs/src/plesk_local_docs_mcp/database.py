@@ -11,11 +11,13 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import cast
 
 import chromadb
 import chromadb.config
 import httpx
 import platformdirs
+from chromadb.api.types import Embeddable, EmbeddingFunction
 from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 from fastmcp.utilities.logging import get_logger
 
@@ -95,7 +97,11 @@ def get_chromadb(db_path: Path) -> chromadb.Collection:
         ),
     ).get_collection(
         name=COLLECTION_NAME,
-        embedding_function=WrappedOpenAIEmbeddingFunction(model_name=EMBEDDING_MODEL),  # pyright: ignore[reportArgumentType]
+        embedding_function=cast(
+            # The class implements a more narrow EmbeddingFunction[Documents] instead
+            EmbeddingFunction[Embeddable],
+            WrappedOpenAIEmbeddingFunction(model_name=EMBEDDING_MODEL),
+        ),
     )
 
 

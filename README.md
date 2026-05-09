@@ -109,6 +109,7 @@ Before commit:
 uv run ruff format
 uv run ruff check --fix
 uv run mypy .
+uv run pytest
 ```
 
 Publish:
@@ -171,4 +172,14 @@ Alternatively, run in demo mode from sources (with mocked responses):
         }
     }
 }
+```
+
+### Automated tests
+
+Unit tests run with `uv run pytest` (in the project root and in each sub-project). Smoke tests that exercise real services are skipped by default and selected via `-m smoke`:
+
+```bash
+# Plesk MCP smoke tests (against a reachable Plesk instance, e.g. from the Docker image described above)
+PLESK_HOST=https://localhost:8443 PLESK_PASSWORD='changeme1Q**' PLESK_INSECURE=1 \
+    uv run pytest -m smoke
 ```

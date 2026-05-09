@@ -48,7 +48,7 @@ class DatabaseUpdateMiddleware(Middleware):
 
 logger = get_logger(__name__)
 args = argparse.Namespace()
-mcp = FastMCP(name="Local Plesk Knowledge Base", version="0.1.0", middleware=[DatabaseUpdateMiddleware()])
+mcp = FastMCP(name="Local Plesk Knowledge Base", version="0.1.1", middleware=[DatabaseUpdateMiddleware()])
 
 
 @mcp.tool(annotations=ToolAnnotations(readOnlyHint=True, openWorldHint=False))

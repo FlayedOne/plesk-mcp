@@ -26,3 +26,19 @@ Configure the server in your VS Code `mcp.json` or equivalent (in other agents o
 ```
 
 See `uvx plesk-remote-docs-mcp@latest --help` for details on available options and environment variables.
+
+## Development
+
+```bash
+uv run ruff format
+uv run ruff check --fix
+uv run mypy .
+uv run pytest
+```
+
+Smoke tests that hit the real remote knowledge base service are skipped by default. To run them:
+
+```bash
+uv run pytest -m smoke
+```
+

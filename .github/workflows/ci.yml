@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.project.name }} (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.14']
+        project:
+          - { name: plesk-mcp,             dir: '.' }
+          - { name: plesk-remote-docs-mcp, dir: 'remote-docs' }
+          - { name: plesk-local-docs-mcp,  dir: 'local-docs' }
+    defaults:
+      run:
+        working-directory: ${{ matrix.project.dir }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync
+      - name: ruff check
+        run: uv run --no-sync ruff check .
+      - name: ruff format --check
+        run: uv run --no-sync ruff format --check .
+      - name: mypy
+        run: uv run --no-sync mypy .
+      - name: pytest
+        run: uv run --no-sync pytest
